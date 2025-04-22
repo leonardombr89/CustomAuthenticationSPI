@@ -1,4 +1,4 @@
-package org.conneqt;
+package org.conneqt.authenticator;
 
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.services.resource.RealmResourceProvider;

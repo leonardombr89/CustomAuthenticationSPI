@@ -1,4 +1,4 @@
-package org.conneqt;
+package org.conneqt.authenticator;
 
 import org.jboss.logging.Logger;
 import org.keycloak.Config;
