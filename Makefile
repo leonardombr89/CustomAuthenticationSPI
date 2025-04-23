@@ -1,4 +1,7 @@
+# Makefile for CustomAuthenticationSPI Setup
+
 KEYCLOAK_CONTAINER=keycloak_web
+FRONT_CONTAINER=konneqt-front
 SPI_JAR=target/CustomAuthenticationSPI-1.0-SNAPSHOT.jar
 PROVIDER_PATH=/opt/keycloak/providers
 KC_BUILD=/opt/keycloak/bin/kc.sh
@@ -7,30 +10,38 @@ KC_BUILD=/opt/keycloak/bin/kc.sh
 build-spi:
 	mvn clean package
 
-# 2. Go up the bank and keycloak temporarily just to do the build
+# 2. Stop and remove project-specific containers, networks and volumes
+clean:
+	docker-compose down --remove-orphans --volumes
+
+# 3. Start only DB and Keycloak for build
 up-temp:
 	docker-compose up -d postgres keycloak_web
 
-# 3. Copy the JAR into the container
+# 4. Copy the JAR into the Keycloak container
 copy-spi:
 	docker cp $(SPI_JAR) $(KEYCLOAK_CONTAINER):$(PROVIDER_PATH)
 
-# 4. For the container before building
+# 5. Stop Keycloak before building with the new provider
 stop-keycloak:
 	docker stop $(KEYCLOAK_CONTAINER)
 
-# 5. Run the SPI build (with container stopped)
+# 6. Build Keycloak with the SPI
 rebuild-keycloak:
 	docker start $(KEYCLOAK_CONTAINER)
 	docker exec -it $(KEYCLOAK_CONTAINER) $(KC_BUILD) build
 
-# 6. Restart Keycloak after build
+# 7. Restart Keycloak after build
 restart-keycloak:
 	docker restart $(KEYCLOAK_CONTAINER)
 
-# 7. Go all up
+# 8. Build the frontend again
+build-front:
+	docker-compose build konneqt-front
+
+# 9. Start all services
 up:
 	docker-compose up -d
 
-# 8. Full command (used at the end)
-start-all: build-spi up-temp copy-spi stop-keycloak rebuild-keycloak restart-keycloak up
+# 10. Full setup: clean, build SPI, setup, build front and up all
+start-all: clean build-spi up-temp copy-spi stop-keycloak rebuild-keycloak restart-keycloak build-front up
