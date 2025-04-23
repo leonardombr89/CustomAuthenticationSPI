@@ -6,9 +6,8 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
-import jakarta.ws.rs.HeaderParam;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.conneqt.util.ConfigUtil;
 import org.conneqt.util.EmailMaskerUtil;
@@ -40,6 +39,8 @@ public class KonneqtAuthenticatorResource {
 
     @POST
     @Path("konneqt")
+    @Produces("application/json")
+    @Consumes("application/json")
     public Response loginKonnect(@HeaderParam(X_KONNEQT_TOKEN) String konneqtToken) {
         logger.info("Received request for login via Konneqt.");
 
@@ -64,6 +65,16 @@ public class KonneqtAuthenticatorResource {
         } catch (Exception e) {
             return handleTokenException(e);
         }
+    }
+
+    @OPTIONS
+    @Path("konneqt")
+    public Response preflight() {
+        return Response.ok()
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Headers", "origin, content-type, accept, authorization, X-Konneqt-Token")
+                .header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+                .build();
     }
 
     private void validateTokenHeader(String token) {
@@ -125,10 +136,17 @@ public class KonneqtAuthenticatorResource {
     }
 
     private Response redirectTo(String url) {
-        return Response.status(Response.Status.CREATED)
-                .header("Location", url)
+        return Response.ok()
+                .type(MediaType.TEXT_PLAIN)
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Headers", "origin, content-type, accept, authorization, X-Konneqt-Token")
+                .header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+                .header("Access-Control-Expose-Headers", "X-Konneqt-Redirect")
+                .header("X-Konneqt-Redirect", url)
                 .build();
     }
+
+
 
     private Response handleTokenException(Exception e) {
         if (e instanceof ExpiredJwtException) {

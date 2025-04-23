@@ -99,10 +99,10 @@ public class KonneqtAuthenticatorResourceTest {
         when(userProvider.getUserByEmail(realmModel, email)).thenReturn(mock(UserModel.class));
 
         Response response = resource.loginKonnect(validToken);
-        String location = response.getHeaderString("Location");
+        String location = response.getHeaderString("X-Konneqt-Redirect");
 
         assertNotNull(location);
-        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertTrue(location.contains(REDIRECT_URL));
 
     }
@@ -126,9 +126,9 @@ public class KonneqtAuthenticatorResourceTest {
 
         verify(userProvider).addUser(realmModel, email);
 
-        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
-        String location = response.getHeaderString("Location");
+        String location = response.getHeaderString("X-Konneqt-Redirect");
         assertNotNull(location);
         assertTrue(location.contains(REDIRECT_URL));
     }

@@ -15,3 +15,26 @@ build/
 
 # OS
 .DS_Store
+
+#REACT
+# dependencies
+konneqt-front/node_modules
+konneqt-front/.pnp
+konneqt-front/.pnp.js
+
+# testing
+konneqt-front/coverage
+
+# production
+konneqt-front/build
+
+# misc
+konneqt-front/.DS_Store
+konneqt-front/.env.local
+konneqt-front/.env.development.local
+konneqt-front/.env.test.local
+konneqt-front/.env.production.local
+
+konneqt-front/npm-debug.log*
+konneqt-front/yarn-debug.log*
+konneqt-front/yarn-error.log*
